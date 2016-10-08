@@ -36,6 +36,12 @@ cycles = int(input('cycles? '))
 counter = 0
 
 location = input('where is this data being collected? ')
+if location == '':
+    location = '1st Floor, Stage Right, Stage Back'
+
+start = 'no'
+while start == 'no':
+    start = input('y/no? ')
 
 data = {}
 
