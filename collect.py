@@ -37,11 +37,14 @@ counter = 0
 
 location = input('where is this data being collected? ')
 if location == '':
-    location = '1st Floor, Stage Right, Stage Back'
+    location = '0th Floor, Stage Right, Stage Front'
+    print('default used. %s' % (location,))
+
+print_only = input('print_only? ')
 
 start = 'no'
 while start == 'no':
-    start = input('y/no? ')
+    start = input('start? y/no? ')
 
 data = {}
 
@@ -74,7 +77,10 @@ for i in range(0, cycles):
                  if mac_address not in data:
                       data[mac_address] = []
                  data[mac_address].append((ssid, dBm_int,))
-                 reads.insert(schema_to_db(time=time, location=location, mac_address=mac_address, ssid=ssid, signal=dBm_int))
+                 if print_only == 'yes':
+                     print('%(mac)s | %(dBm)d' % {'mac': mac_address, 'dBm': dBm_int})
+                 else:
+                     reads.insert(schema_to_db(time=time, location=location, mac_address=mac_address, ssid=ssid, signal=dBm_int))
 
         sys.stdout.flush()
     print('end collection round %d' % i)
