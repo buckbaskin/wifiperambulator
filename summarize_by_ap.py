@@ -7,7 +7,7 @@ split_db = TinyDB('data/split_ap.json')
 
 Tables = Query()
 table_list = split_db.search(Tables.id_=='tables')[0]['tables']
-
+table_list = list(set(table_list))
 item_sets = {}
 for mac_address in table_list:
     mac_address = str(mac_address)
@@ -20,8 +20,17 @@ for mac_address in table_list:
     observations = item_sets[mac_address]
     locs = defaultdict(list)
     for item in observations:
+        if 'MHacksGuest' not in item['ssid']:
+            continue
         locs[item['location_id']].append(item)
 
+    if len(locs) <= 0:
+        continue
+    if len(locs) >= 3:
+        print('\n%s **' % (mac_address,))
+    else:
+        continue
+        print('\n%s' % (mac_address,))
     for key in locs:
         list_ = locs[key]
         max_signal = -100
@@ -35,6 +44,6 @@ for mac_address in table_list:
 
         if 'MHacksGuest' not in list_[0]['ssid']:
             continue
-        print('%s | %d | %s' % (mac_address, list_[0]['location_id'], int(float(sum_signal)/len(list_)),))
-    print('')
+        print('  %d | %s' % (list_[0]['location_id'], int(float(sum_signal)/len(list_)),))
+
 print('done selecting from db')
