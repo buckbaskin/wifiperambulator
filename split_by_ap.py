@@ -17,11 +17,22 @@ print('start converting db (ap/mac_address)')
 
 table_list = []
 
+counter = 0
 for item in observations:
     # print(item)
     location_id = 1
     location = item['location'].lower()
-    if 'back left pillar' in location:
+    if 'stage left' in location:
+        if 'stage back' in location:
+            location_id = 11
+        else:
+            location_id = 12
+    elif 'stage right' in location:
+        if 'stage back' in location:
+            location_id = 13
+        else:
+            location_id = 14
+    elif 'back left pillar' in location:
         if 'outside red wing' in location:
             location_id = 7
         else:
@@ -45,6 +56,9 @@ for item in observations:
     item['location_id'] = location_id
     table = split_db.table(item['mac_address'])
     table_list.append(item['mac_address'])
+    counter += 1
+    if counter % 100 == 0:
+        print('reached item %d' % (counter,))
     table.insert(item)
 
 # print('table list: %s' % (table_list,))
