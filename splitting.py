@@ -4,10 +4,10 @@ from tinydb import TinyDB
 
 observation_db = TinyDB('data/observations.json')
 
-with open('data/splits.json', 'w'):
+with open('data/split_loc.json', 'w'):
     pass
 
-split_db = TinyDB('data/splits.json')
+split_db = TinyDB('data/split_loc.json')
 
 reads = observation_db.table('reads')
 
