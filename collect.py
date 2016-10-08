@@ -37,7 +37,7 @@ counter = 0
 
 location = input('where is this data being collected? ')
 if location == '':
-    location = '1st Floor, Stage Right, Stage Back'
+    location = '0th Floor, Stage Right, Stage Front'
     print('default used. %s' % (location,))
 
 print_only = input('print_only? ')
