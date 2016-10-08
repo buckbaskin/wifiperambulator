@@ -1,6 +1,6 @@
 '''Split stored observations into location pools'''
 
-from tinydb import TinyDB
+from tinydb import TinyDB, Query
 
 observation_db = TinyDB('data/observations.json')
 
@@ -14,6 +14,8 @@ reads = observation_db.table('reads')
 observations = reads.all()
 
 print('start converting db (ap/mac_address)')
+
+table_list = []
 
 for item in observations:
     # print(item)
@@ -42,6 +44,13 @@ for item in observations:
     # print('matched %d' % location_id)
     item['location_id'] = location_id
     table = split_db.table(item['mac_address'])
+    table_list.append(item['mac_address'])
     table.insert(item)
+
+# print('table list: %s' % (table_list,))
+result = split_db.insert({'id_': 'tables', 'tables': table_list})
+
+Tables = Query()
+print('recovered table list: len(%s)' % (len(split_db.search(Tables.id_ == 'tables')[0]['tables']),))
 
 print('done converting db (ap/mac_address)')
