@@ -8,7 +8,12 @@ from tinydb import TinyDB
 database = TinyDB('data/observations.json') 
 reads = database.table('reads')
 
-def schema_to_db(time: 'datetime.datetime', location: str, mac_address: str, signal: int, ssid: str):
+def schema_to_db(
+        time: 'datetime.datetime',
+        location: str,
+        mac_address: str,
+        signal: int,
+        ssid: str):
     return {
             'time': {
                 'year': time.year,
@@ -27,15 +32,16 @@ def schema_to_db(time: 'datetime.datetime', location: str, mac_address: str, sig
 
 
 command = "sudo iwlist wlan0 scanning | egrep 'Address|ESSID|Quality'"
-cycles = 2
+cycles = int(input('cycles? '))
 counter = 0
 
 location = input('where is this data being collected? ')
 
-time = datetime.datetime.now()
 data = {}
 
 for i in range(0, cycles):
+    print('begin collection round %d' % i)
+    time = datetime.datetime.now()
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     for line in child.stdout:
         if line == '' and child.poll() != None:
@@ -65,6 +71,7 @@ for i in range(0, cycles):
                  reads.insert(schema_to_db(time=time, location=location, mac_address=mac_address, ssid=ssid, signal=dBm_int))
 
         sys.stdout.flush()
+    print('end collection round %d' % i)
 
 print('data collected at %s' % (time,))
 
