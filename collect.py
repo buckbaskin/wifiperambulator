@@ -1,17 +1,40 @@
 import subprocess
 import sys
 import io
-
 import datetime
 
+# database
+from tinydb import TinyDB
+database = TinyDB('data/observations.json') 
+reads = database.table('reads')
+
+def schema_to_db(time: 'datetime.datetime', location: str, mac_address: str, signal: int, ssid: str):
+    return {
+            'time': {
+                'year': time.year,
+                'month': time.month,
+                'day': time.day,
+                'hour': time.hour,
+                'minute': time.minute,
+                'second': time.second,
+                'microsecond': time.microsecond
+                },
+            'location': location,
+            'mac_address': mac_address,
+            'signal': signal,
+            'ssid': ssid
+            }
+
+
 command = "sudo iwlist wlan0 scanning | egrep 'Address|ESSID|Quality'"
+cycles = 2
 counter = 0
 
-# from collections import defaultdict
+location = input('where is this data being collected? ')
+
 time = datetime.datetime.now()
 data = {}
 
-cycles = 2
 for i in range(0, cycles):
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     for line in child.stdout:
@@ -39,6 +62,8 @@ for i in range(0, cycles):
                  if mac_address not in data:
                       data[mac_address] = []
                  data[mac_address].append((ssid, dBm_int,))
+                 reads.insert(schema_to_db(time=time, location=location, mac_address=mac_address, ssid=ssid, signal=dBm_int))
+
         sys.stdout.flush()
 
 print('data collected at %s' % (time,))

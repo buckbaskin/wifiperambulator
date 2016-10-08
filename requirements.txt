@@ -1,0 +1,4 @@
+pip
+setuptools
+
+tinydb==3.2.1
