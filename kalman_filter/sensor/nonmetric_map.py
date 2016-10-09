@@ -76,6 +76,11 @@ class NonMetricMap(object):
     def create_space(self, sensor_data: List[SensorData]) -> None:
         sensor_data = sorted(sensor_data)
         base = sensor_data[0]
+        for index, new_base in enumerate(sensor_data):
+            if new_base['mac_address'] not in self.map_repr.forward:
+                base = sensor_data[index]
+                break
+
         for reading in sensor_data:
             self.map_repr.add_pair(base['mac_address'], reading['mac_address'], reading['signal'])
 
