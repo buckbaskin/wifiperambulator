@@ -18,3 +18,19 @@ class testNMM(unittest.TestCase):
 
         result = nmap.get_space([self.sig1, self.sig2, self.sig3])
         self.assertEqual(result[0], 'a')
+    
+    def test_double_update_first(self):
+        nmap = NonMetricMap()
+        nmap.update([self.sig1, self.sig2, self.sig3])
+        nmap.update([self.sig4, self.sig5, self.sig6])
+
+        result = nmap.get_space([self.sig1, self.sig2, self.sig3])
+        self.assertEqual(result[0], 'a')
+
+    def test_double_update_second(self):
+        nmap = NonMetricMap()
+        nmap.update([self.sig1, self.sig2, self.sig3])
+        nmap.update([self.sig4, self.sig5, self.sig6])
+
+        result = nmap.get_space([self.sig4, self.sig5, self.sig6])
+        self.assertEqual(result[0], 'b')

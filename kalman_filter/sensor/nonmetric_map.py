@@ -53,7 +53,6 @@ class NonMetricMap(object):
             return None
         sensor_data = sorted(sensor_data)
         base = sensor_data[0]
-        print('base sensor = %s' % (base,))
         for reading in sensor_data:
             if reading['mac_address'] == base['mac_address']:
                 continue
@@ -69,7 +68,6 @@ class NonMetricMap(object):
 
     def get_space(self, sensor_data: List[SensorData]) -> Tuple[str, float]:
         max_likelihood_base, probability = self._max_likelihood_base(sensor_data)
-        print('max_likelihood_base: %s %s' % (max_likelihood_base, probability,))
         existing_space = self.map_repr.forward[max_likelihood_base]
         # update for previously not seen data
         for reading in sensor_data:
@@ -106,7 +104,6 @@ class NonMetricMap(object):
             if reading['signal'] > maxDBm:
                 maxDBm = reading['signal']
                 maxIndex = i+0
-        print('maxDBm: %s' % (maxDBm))
 
         maxProb = 0.0
         maxIndex = 0
@@ -120,7 +117,6 @@ class NonMetricMap(object):
         return sensor_data[maxIndex]['mac_address'], maxProb
 
     def _probability_base_unit(self, mac_addr: str, dBm: int, minDBm: int) -> float:
-        print('pbu: %s %s %s' % (mac_addr, dBm, minDBm,))
         # this is the base to at most 1 existing base
         if mac_addr not in self.map_repr.forward:
             return 0.0
@@ -139,6 +135,5 @@ class NonMetricMap(object):
         else:
             update = 1.0
 
-        print('p+u: %s %s' % (prior, update,))
         return prior*update
 
