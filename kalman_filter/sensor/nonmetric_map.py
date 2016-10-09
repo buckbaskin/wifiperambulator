@@ -1,5 +1,6 @@
 from collections import namedtuple, defaultdict
 from kalman_filter.sensor import SensorData
+from typing import Any, Dict, Tuple
 
 Annotation = namedtuple('Annotation', ['occurences', 'av_dBm'])
 
@@ -14,7 +15,7 @@ class _MapRepr(object):
             self._repr[mac1][mac2] = Annotation(occurences=0, av_dBm=0.0)
         old_count = self._repr[mac1][mac2]['occurences']
         old_avg = self._repr[mac1][mac2]['av_dBm']
-        new_abg = (old_avg*old_count + dBm2)/(old_count+1)
+        new_avg = (old_avg*old_count + dBm2)/(old_count+1)
         new_count = old_count + 1
         self._repr[mac1][mac2] = Annotation(occurences=new_count, av_dBm=new_avg)
 
@@ -50,7 +51,7 @@ class NonMetricMap(object):
         for reading in sensor_data:
             mac_addr = reading['mac_address']
             if mac_addr != max_likelihood_base and mac_addr not in existing_space:
-                probability *= self._probability_found(mac_likelihood_base, mac_addr, reading['signal'])
+                probability *= self._probability_found(max_likelihood_base, mac_addr, reading['signal'])
         # update for data that was supposed to be there but isn't
         for old_mac in existing_space:
             for reading in sensor_data:
@@ -58,7 +59,7 @@ class NonMetricMap(object):
                     break
             else:
                 probability *= self._probabilty_missing(max_likelihood_base, old_mac)
-        return max_likelihood_base, probablity
+        return max_likelihood_base, probability
 
     def _probability_found(self, base: str, not_prev_seen_mac: str, dBm: int) -> float:
         '''probability that a new mac address was actually there originally'''
@@ -83,14 +84,14 @@ class NonMetricMap(object):
         maxIndex = 0
         for i in range(0, len(sensor_data)):
             reading = sensor_data[i]
-            prob = self._probability_base(reading['mac_address'], reading['signal'], maxDBm)
+            prob = self._probability_base_unit(reading['mac_address'], reading['signal'], maxDBm)
             if prob > maxProb:
                 maxProb = prob + 0.0
                 maxIndex = i
 
         return sensor_data[maxIndex]['mac_address'], maxProb
 
-    def _probability_base_unit(mac_addr, dBm, minDBm) -> float:
+    def _probability_base_unit(self, mac_addr: str, dBm: int, minDBm: int) -> float:
         #TODO
         prior = 0.5 # ratio of base spaces to all containing spaces
         update = float(minDBm)/dBm # ratio of this dBm to the min
