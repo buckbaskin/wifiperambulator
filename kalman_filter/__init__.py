@@ -1,6 +1,9 @@
 from kalman_filter.motion import collect_motion_data, motion_update
 from kalman_filter.sensor import collect_sensor_data, sensor_update
 
+class State(object):
+    pass
+
 def init_state():
     return {}
 
