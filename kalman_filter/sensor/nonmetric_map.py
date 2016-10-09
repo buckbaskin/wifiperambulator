@@ -8,12 +8,11 @@ APInfo = Dict[str, Annotation]
 ForwardMap = Dict[str, APInfo]
 BackwardMap = Dict[str, Set[str]]
 
-class _MapRepr(dict):
+class _MapRepr(object):
     _forward = None  # type: ForwardMap
     _backward = None # type: BackwardMap
     
     def __init__(self, *args: Tuple[Any], **kwargs: Dict[Any, Any]) -> None:
-        super(_MapRepr, self).__init__(*args, **kwargs)
         self._forward = defaultdict(dict)
         self._backward = defaultdict(set)
 
@@ -53,6 +52,7 @@ class NonMetricMap(object):
             return None
         sensor_data = sorted(sensor_data)
         base = sensor_data[0]
+        print('base %s' % (base,))
         for reading in sensor_data:
             if reading['mac_address'] == base['mac_address']:
                 continue
@@ -68,6 +68,7 @@ class NonMetricMap(object):
 
     def get_space(self, sensor_data: List[SensorData]) -> Tuple[str, float]:
         max_likelihood_base, probability = self._max_likelihood_base(sensor_data)
+        print('ml_base: %s' % (max_likelihood_base,))
         existing_space = self.map_repr.forward[max_likelihood_base]
         # update for previously not seen data
         for reading in sensor_data:
@@ -93,7 +94,7 @@ class NonMetricMap(object):
 
     def _probabilty_missing(self, base: str, prev_seen_mac: str) -> float:
         '''probability that a previously seen mac address is okay to not be there'''
-        old_avg_dBm = self.map_repr[base][prev_seen_mac][1]
+        old_avg_dBm = self.map_repr.forward[base][prev_seen_mac][1]
         return min(1., max(0., old_avg_dBm / -100.))
 
     def _max_likelihood_base(self, sensor_data: List[SensorData]) -> Tuple[str, float]:
@@ -105,8 +106,10 @@ class NonMetricMap(object):
                 maxDBm = reading['signal']
                 maxIndex = i+0
 
+        print('maxDBm: %s maxIndex: %s' % (maxDBm, maxIndex,))
         maxProb = 0.0
         maxIndex = 0
+        
         for i in range(0, len(sensor_data)):
             reading = sensor_data[i]
             prob = self._probability_base_unit(reading['mac_address'], reading['signal'], maxDBm)
