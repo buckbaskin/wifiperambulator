@@ -2,3 +2,7 @@ pip
 setuptools
 
 tinydb==3.2.1
+
+mypy-lang
+pylint
+nose2

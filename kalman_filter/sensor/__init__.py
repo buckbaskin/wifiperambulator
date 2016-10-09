@@ -8,7 +8,7 @@ class SensorData(dict):
         self['signal'] = signal
 
     def __lt__(self, other: 'SensorData') -> None:
-        return self['signal'] < other['signal']
+        return not (self['signal'] < other['signal'])
     
 
 def sensor_update(sensor_data: List[SensorData], state: State) -> State:
