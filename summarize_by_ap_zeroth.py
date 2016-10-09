@@ -16,11 +16,13 @@ for mac_address in table_list:
 print('start selecting from db')
 
 for mac_address in table_list:
+    if '00:02:72:B5:B6:B6' in mac_address:
+        continue
     mac_address = str(mac_address)
     observations = item_sets[mac_address]
     locs = defaultdict(list)
     for item in observations:
-        if item['location_id'] < 11:
+        if item['location_id'] != 14:
             continue
         if item['signal'] < -40:
             continue
