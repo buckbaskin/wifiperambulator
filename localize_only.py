@@ -29,7 +29,7 @@ nice_output = {
         }
 
 command = "sudo iwlist wlan0 scanning | egrep 'Address|ESSID|Quality'"
-cycles = 8
+cycles = 50
 
 print_only = 'no'
 start = 'no'
@@ -86,7 +86,7 @@ for i in range(0, cycles):
     finally: 
         write_list = []
     # print('begin inter-round sleep')
-    time.sleep(5.0)
+    time.sleep(0.50)
     # print('end inter-round sleep')
 
 

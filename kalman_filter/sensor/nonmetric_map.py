@@ -85,21 +85,29 @@ class NonMetricMap(object):
             self.map_repr.add_pair(base['mac_address'], reading['mac_address'], reading['signal'])
 
     def get_space(self, sensor_data: List[SensorData]) -> Tuple[str, float]:
-        max_likelihood_base, probability = self._max_likelihood_base(sensor_data)
-        existing_space = self.map_repr.forward[max_likelihood_base]
-        # update for previously not seen data
-        for reading in sensor_data:
-            mac_addr = reading['mac_address']
-            if mac_addr != max_likelihood_base and mac_addr not in existing_space:
-                probability *= self._probability_found(max_likelihood_base, mac_addr, reading['signal'])
-        # update for data that was supposed to be there but isn't
-        for old_mac in existing_space:
+        max_probability = 0.0
+        max_base = sensor_data[0]['mac_address']
+        for base_candidate in sensor_data:
+            base_addr = base_candidate['mac_address']
+            probability = 1
+#            max_likelihood_base, probability = self._max_likelihood_base(sensor_data)
+            existing_space = self.map_repr.forward[base_addr]
+            # update for previously not seen data
             for reading in sensor_data:
-                if reading['mac_address'] == old_mac:
-                    break
-            else:
-                probability *= self._probabilty_missing(max_likelihood_base, old_mac)
-        return max_likelihood_base, probability
+                mac_addr = reading['mac_address']
+                if mac_addr != max_likelihood_base and mac_addr not in existing_space:
+                    probability *= self._probability_found(max_likelihood_base, mac_addr, reading['signal'])
+            # update for data that was supposed to be there but isn't
+            for old_mac in existing_space:
+                for reading in sensor_data:
+                    if reading['mac_address'] == old_mac:
+                        break
+                else:
+                    probability *= self._probabilty_missing(max_likelihood_base, old_mac)
+            if probability > max_probability:
+                max_probability = probability
+                max_base = base_addr
+        return max_base, max_probability
 
     def _probability_found(self, base: str, not_prev_seen_mac: str, dBm: int) -> float:
         '''probability that a new mac address was actually there originally'''
