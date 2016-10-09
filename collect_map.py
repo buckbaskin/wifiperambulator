@@ -55,18 +55,13 @@ for i in range(0, cycles):
         # sys.stdout.write(decoded+'\n')
         if 'Address' in decoded:
              mac_address = decoded.split(' ')[4]
-             # print('mac_address %s' % (mac_address,))
         if 'Signal level' in decoded:
              special = 'Signal level='
              dBm_index = decoded.find(special) + len(special)
              dBm_str = decoded[dBm_index:-3].strip()
              dBm_int = int(dBm_str)
-             # print('dbm %d' % (dBm_int,))
         if 'ESSID' in decoded:
             ssid = decoded.split('"')[1]
-            # print('ssid decode: %s' % (decoded,))
-            # print('ssid %s' % (essid,))
-            # print('ssid|addr|dBm - %s|%s|%d' % (ssid, mac_address, dBm_int,))
             if ssid and mac_address and dBm_int <= 0:
                 if mac_address not in data:
                       data[mac_address] = []
@@ -76,7 +71,7 @@ for i in range(0, cycles):
                 elif '00:02' in mac_address:
                     print('skipping my hardware')
                 else:
-                    print('SensorData(%s, %s)' % (mac_address, dBm_int,))
+                    # print('SensorData(%s, %s)' % (mac_address, dBm_int,))
                     write_list.append({'mac_address': mac_address, 'signal': dBm_int})
                     update_list.append(SensorData(mac_address, dBm_int))
 
