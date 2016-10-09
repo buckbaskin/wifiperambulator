@@ -44,8 +44,18 @@ class NonMetricMap(object):
     '''
     Make a map that represents spaces based on their strongest AP
     '''
-    def __init__(self) -> None:
+    def __init__(self, database=None) -> None:
         self.map_repr = _MapRepr()
+        if database is not None:
+            self.load_from_database(database)
+
+    def load_from_database(self, database):
+        data = database.table('data').all()
+        for data_list in data:
+            sensor_data = []
+            for item in data_list:
+                sensor_data.append(SensorData(item['mac_address'], item['signal']))
+            self.update(sensor_data)
 
     def update(self, sensor_data: List[SensorData]) -> None:
         if len(sensor_data) <= 0:
