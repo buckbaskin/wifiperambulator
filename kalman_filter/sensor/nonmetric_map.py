@@ -1,6 +1,6 @@
 from collections import namedtuple, defaultdict
 from kalman_filter.sensor import SensorData
-from typing import Any, Dict, Tuple
+from typing import Dict, List, Set, Tuple
 
 Annotation = namedtuple('Annotation', ['occurences', 'av_dBm'])
 
@@ -12,7 +12,8 @@ class _MapRepr(dict):
     _forward = None  # type: ForwardMap
     _backward = None # type: BackwardMap
     
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
+        super(_MapRepr, self).__init__(*args, **kwargs)
         self._forward = defaultdict(dict)
         self._backward = defaultdict(set)
 
@@ -45,7 +46,7 @@ class NonMetricMap(object):
     Make a map that represents spaces based on their strongest AP
     '''
     def __init__(self) -> None:
-       self.map_repr = _MapRepr()
+        self.map_repr = _MapRepr()
 
     def update(self, sensor_data: List[SensorData]) -> None:
         if len(sensor_data) <= 0:
@@ -86,6 +87,8 @@ class NonMetricMap(object):
         '''probability that a new mac address was actually there originally'''
         # dBm == 0 -> 0.0
         # dBm <= -100 -> 1.0
+        if not_prev_seen_mac in self.map_repr.forward[base]:
+            return 1.0
         return min(1., max(0., dBm / -100.))
 
     def _probabilty_missing(self, base: str, prev_seen_mac: str) -> float:

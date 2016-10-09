@@ -2,8 +2,8 @@ from kalman_filter import State
 from typing import Any, Dict, List
 
 class SensorData(dict):
-    def __init__(self) -> None:
-        pass
+    def __init__(self, *args, **kwargs) -> None:
+        super(SensorData, dict).__init__(*args, **kwargs)
 
     def __lt__(self, other: SensorData) -> None:
         return self['signal'] < other['signal']
