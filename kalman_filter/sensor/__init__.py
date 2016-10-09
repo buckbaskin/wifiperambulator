@@ -2,10 +2,10 @@ from kalman_filter import State
 from typing import Any, Dict, List
 
 class SensorData(dict):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def __lt__(self, other):
+    def __lt__(self, other: SensorData) -> None:
         return self['signal'] < other['signal']
     
 

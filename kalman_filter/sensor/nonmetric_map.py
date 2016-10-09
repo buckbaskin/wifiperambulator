@@ -5,7 +5,8 @@ from typing import Any, Dict, Tuple
 Annotation = namedtuple('Annotation', ['occurences', 'av_dBm'])
 
 class _MapRepr(object):
-    def __init__(self):
+    _repr = None  # type: Dict[str, Dict[str, Annotation]]
+    def __init__(self) -> None:
         self._repr = defaultdict(dict)
 
     def add_pair(self, mac1: str, mac2: str, dBm2: int) -> None:
@@ -13,17 +14,20 @@ class _MapRepr(object):
             return None
         if mac2 not in self._repr[mac1]:
             self._repr[mac1][mac2] = Annotation(occurences=0, av_dBm=0.0)
-        old_count = self._repr[mac1][mac2]['occurences']
-        old_avg = self._repr[mac1][mac2]['av_dBm']
+        old_count = self._repr[mac1][mac2][0]
+        old_avg = self._repr[mac1][mac2][1]
         new_avg = (old_avg*old_count + dBm2)/(old_count+1)
         new_count = old_count + 1
         self._repr[mac1][mac2] = Annotation(occurences=new_count, av_dBm=new_avg)
+
+    def __getattr__(self, name: str) -> Dict[str, Annotation]:
+        return getattr(self._repr, name)
 
 class NonMetricMap(object): 
     '''
     Make a map that represents spaces based on their strongest AP
     '''
-    def __init__(self):
+    def __init__(self) -> None:
        self.map_repr = _MapRepr()
 
     def update(self, sensor_data: List[SensorData]) -> None:

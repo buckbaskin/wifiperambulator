@@ -5,7 +5,7 @@ from kalman_filter.sensor import collect_sensor_data, sensor_update
 Position = namedtuple('Position', ['x', 'y', 'z'])
 
 class State(object):
-    def __init__(self):
+    def __init__(self) -> None:
         p = Position(x=0.0, y=0.0, z=0.0)
 
 def init_state() -> State:
