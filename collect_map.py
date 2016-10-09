@@ -87,12 +87,15 @@ print('Get space %s' % (result,))
 
 nice_output = {
         'F0:B0:52:21:DF:D8': '5th Floor, Near MongoDB',
+        'F0:B0:52:61:DF:98': '5th Floor, Also Near MongoDB',
         'F0:B0:52:9F:FC:C8': '2nd Floor, Hallway',
         'E0:10:7F:7A:A9:18': 'Basement, Stage Right',
 #        'E0:10:7F:7A:A9:18': 'Basement, Stage Left'
         'F0:B0:52:A1:DF:D8': '5th Floor, Near Qualtrics',
+        'F0:B0:52:A1:DF:98': '5th Floor, Also Near Qualtrics',
         'F0:B0:52:5F:F3:08': '3rd Floor, Red Wings Room',
         'F0:B0:52:A1:E1:A8': '4th Floor, Hardware Desk',
+        '1C:87:2C:69:1A:E8': '5th Floor, middle-mongo of room',
         }
 
 if result[0] in nice_output:
