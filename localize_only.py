@@ -2,6 +2,7 @@ import subprocess
 import sys
 import io
 import datetime
+import time
 
 # database
 from tinydb import TinyDB
@@ -13,26 +14,23 @@ nmap = NonMetricMap(top_database)
 
 from kalman_filter.sensor import SensorData
 
-def schema_to_db(
-        time: 'datetime.datetime',
-        data):
-    return {
-            'time': {
-                'year': time.year,
-                'month': time.month,
-                'day': time.day,
-                'hour': time.hour,
-                'minute': time.minute,
-                'second': time.second,
-                'microsecond': time.microsecond
-                },
-            'data': data
-            }
-
+nice_output = {
+        'E0:10:7F:7A:A9:18': 'Basement, Stage Right',
+        'E0:10:7F:FE:C1:B8': 'Basement, Stage Right',
+        'E0:10:7F:FD:CB:48': 'Basement, Stage Left',
+        'E0:10:7F:BE:C1:B8': 'Basement, Stage Left',
+        '00:3A:98:91:BD:60': '1st Floor, Near Entrance',
+        'F0:B0:52:9F:F5:98': '2nd Floor, Near Concur',
+        'F0:B0:52:5F:F3:08': '3rd Floor, GE Side',
+        'F0:B0:52:5F:FB:28': '3rd Floor, Front of Red Wings Room',
+        'F0:B0:52:61:DF:08': '4th Floor, Hardware Desk',
+        'F0:B0:52:A1:DF:D8': '5th Floor, Kitchen',
+        'F0:B0:52:1F:FB:18': '5th Floor, Qualtrics/RetailMeNot',
+        }
 
 command = "sudo iwlist wlan0 scanning | egrep 'Address|ESSID|Quality'"
-cycles = int(input('cycles? '))
-counter = 0
+cycles = 8
+
 print_only = 'no'
 start = 'no'
 while start == 'no':
@@ -41,8 +39,8 @@ while start == 'no':
 data = {}
 
 for i in range(0, cycles):
-    print('begin collection round %d' % i)
-    time = datetime.datetime.now()
+    print('%4d updating' % i)
+    timestamp = datetime.datetime.now()
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     write_list = []
     for line in child.stdout:
@@ -68,35 +66,33 @@ for i in range(0, cycles):
                 if print_only == 'yes':
                     print('%(mac)s | %(dBm)d' % {'mac': mac_address, 'dBm': dBm_int})
                 elif '00:02' in mac_address:
-                    print('skipping my hardware')
+                    # print('skipping my hardware')
+                    pass
                 else:
                     # print('SensorData(%s, %s)' % (mac_address, dBm_int,))
                     write_list.append({'mac_address': mac_address, 'signal': dBm_int})
 
         sys.stdout.flush()
-    print('end collection round %d' % i)
+    # print('end collection round %d' % i)
+    try:
+        result = nmap.get_space(write_list)
+        print('location estimate %s' % (result,))
+        if result[0] in nice_output:
+            print('Real talk: %s' % (nice_output[result[0]]))
+        else:
+            print('%d location estimate %s' % (i, result,))
+    except IndexError:
+        pass
+    finally: 
+        write_list = []
+    # print('begin inter-round sleep')
+    time.sleep(5.0)
+    # print('end inter-round sleep')
 
-print('data collected at %s' % (time,))
 
-result = nmap.get_space(write_list)
-print('Get space %s' % (result,))
+print('data collected at %s' % (timestamp,))
 
-nice_output = {
-        'E0:10:7F:7A:A9:18': 'Basement, Stage Right',
-        'E0:10:7F:FE:C1:B8': 'Basement, Stage Right',
-        'E0:10:7F:FD:CB:48': 'Basement, Stage Left',
-        'E0:10:7F:BE:C1:B8': 'Basement, Stage Left',
-        '00:3A:98:91:BD:60': '1st Floor, Near Entrance',
-        'F0:B0:52:9F:F5:98': '2nd Floor, Near Concur',
-        'F0:B0:52:5F:F3:08': '3rd Floor, GE Side',
-        'F0:B0:52:5F:FB:28': '3rd Floor, Front of Red Wings Room',
-        'F0:B0:52:61:DF:08': '4th Floor, Hardware Desk',
-        'F0:B0:52:A1:DF:D8': '5th Floor, Kitchen',
-        'F0:B0:52:1F:FB:18': '5th Floor, Qualtrics/RetailMeNot',
-        }
 
-if result[0] in nice_output:
-    print('Real talk: %s' % (nice_output[result[0]]))
 
 
 sys.stdout.flush()
