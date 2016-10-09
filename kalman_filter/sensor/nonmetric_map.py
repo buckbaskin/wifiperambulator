@@ -56,7 +56,6 @@ class NonMetricMap(object):
             data_list = data_list['data']
             for item in data_list:
                 inter = SensorData(item['mac_address'], item['signal'])
-                print('type(%s)' % (type(inter),))
                 sensor_data.append(inter)
             self.update(sensor_data)
 
@@ -65,7 +64,6 @@ class NonMetricMap(object):
             return None
         sensor_data = sorted(sensor_data)
         base = sensor_data[0]
-        print('base %s' % (base,))
         for reading in sensor_data:
             if reading['mac_address'] == base['mac_address']:
                 continue
@@ -81,7 +79,6 @@ class NonMetricMap(object):
 
     def get_space(self, sensor_data: List[SensorData]) -> Tuple[str, float]:
         max_likelihood_base, probability = self._max_likelihood_base(sensor_data)
-        print('ml_base: %s' % (max_likelihood_base,))
         existing_space = self.map_repr.forward[max_likelihood_base]
         # update for previously not seen data
         for reading in sensor_data:
@@ -119,7 +116,6 @@ class NonMetricMap(object):
                 maxDBm = reading['signal']
                 maxIndex = i+0
 
-        print('maxDBm: %s maxIndex: %s' % (maxDBm, maxIndex,))
         maxProb = 0.0
         maxIndex = 0
         
