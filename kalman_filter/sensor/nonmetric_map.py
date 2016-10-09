@@ -53,8 +53,11 @@ class NonMetricMap(object):
         data = database.table('data').all()
         for data_list in data:
             sensor_data = []
+            data_list = data_list['data']
             for item in data_list:
-                sensor_data.append(SensorData(item['mac_address'], item['signal']))
+                inter = SensorData(item['mac_address'], item['signal'])
+                print('type(%s)' % (type(inter),))
+                sensor_data.append(inter)
             self.update(sensor_data)
 
     def update(self, sensor_data: List[SensorData]) -> None:

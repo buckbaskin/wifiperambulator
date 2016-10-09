@@ -9,16 +9,13 @@ top_database = TinyDB('data/live_mapping.json')
 database = top_database.table('data')
 
 from kalman_filter.sensor.nonmetric_map import NonMetricMap
-nmap = NonMetricMap(database)
+nmap = NonMetricMap(top_database)
 
 from kalman_filter.sensor import SensorData
 
 def schema_to_db(
         time: 'datetime.datetime',
-        location: str,
-        mac_address: str,
-        signal: int,
-        ssid: str):
+        data):
     return {
             'time': {
                 'year': time.year,
@@ -29,17 +26,14 @@ def schema_to_db(
                 'second': time.second,
                 'microsecond': time.microsecond
                 },
-            'location': location,
-            'mac_address': mac_address,
-            'signal': signal,
-            'ssid': ssid
+            'data': data
             }
 
 
 command = "sudo iwlist wlan0 scanning | egrep 'Address|ESSID|Quality'"
 cycles = int(input('cycles? '))
 counter = 0
-
+print_only = 'no'
 start = 'no'
 while start == 'no':
     start = input('start? y/no? ')
@@ -51,6 +45,7 @@ for i in range(0, cycles):
     time = datetime.datetime.now()
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     write_list = []
+    update_list = []
     for line in child.stdout:
         if line == '' and child.poll() != None:
             break
@@ -82,11 +77,12 @@ for i in range(0, cycles):
                     print('skipping my hardware')
                 else:
                     print('SensorData(%s, %s)' % (mac_address, dBm_int,))
-                    write_list.append({'time': time, 'mac_address': mac_address, 'signal': dBm_int})
+                    write_list.append({'mac_address': mac_address, 'signal': dBm_int})
+                    update_list.append(SensorData(mac_address, dBm_int))
 
         sys.stdout.flush()
-    database.insert(write_list)
-    nmap.update(write_list)
+    database.insert(schema_to_db(time, write_list))
+    nmap.update(update_list)
     print('end collection round %d' % i)
 
 print('data collected at %s' % (time,))
