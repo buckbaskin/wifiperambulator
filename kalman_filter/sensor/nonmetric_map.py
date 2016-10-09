@@ -95,15 +95,16 @@ class NonMetricMap(object):
             # update for previously not seen data
             for reading in sensor_data:
                 mac_addr = reading['mac_address']
-                if mac_addr != max_likelihood_base and mac_addr not in existing_space:
-                    probability *= self._probability_found(max_likelihood_base, mac_addr, reading['signal'])
+                if mac_addr != base_addr and mac_addr not in existing_space:
+                    probability *= self._probability_found(base_addr, mac_addr, reading['signal'])
             # update for data that was supposed to be there but isn't
             for old_mac in existing_space:
                 for reading in sensor_data:
                     if reading['mac_address'] == old_mac:
                         break
                 else:
-                    probability *= self._probabilty_missing(max_likelihood_base, old_mac)
+                    probability *= self._probabilty_missing(base_addr, old_mac)
+            print('%s -> %4.4f' % (base_addr, probability,))
             if probability > max_probability:
                 max_probability = probability
                 max_base = base_addr
