@@ -4,24 +4,41 @@ from typing import Any, Dict, Tuple
 
 Annotation = namedtuple('Annotation', ['occurences', 'av_dBm'])
 
-class _MapRepr(object):
-    _repr = None  # type: Dict[str, Dict[str, Annotation]]
+APInfo = Dict[str, Annotation]
+ForwardMap = Dict[str, APInfo]
+BackwardMap = Dict[str, Set[str]]
+
+class _MapRepr(dict):
+    _forward = None  # type: ForwardMap
+    _backward = None # type: BackwardMap
+    
     def __init__(self) -> None:
-        self._repr = defaultdict(dict)
+        self._forward = defaultdict(dict)
+        self._backward = defaultdict(set)
 
     def add_pair(self, mac1: str, mac2: str, dBm2: int) -> None:
         if mac1 == mac2:
             return None
-        if mac2 not in self._repr[mac1]:
-            self._repr[mac1][mac2] = Annotation(occurences=0, av_dBm=0.0)
-        old_count = self._repr[mac1][mac2][0]
-        old_avg = self._repr[mac1][mac2][1]
+        if mac2 not in self._forward[mac1]:
+            self._forward[mac1][mac2] = Annotation(occurences=0, av_dBm=0.0)
+        old_count = self._forward[mac1][mac2][0]
+        old_avg = self._forward[mac1][mac2][1]
         new_avg = (old_avg*old_count + dBm2)/(old_count+1)
         new_count = old_count + 1
-        self._repr[mac1][mac2] = Annotation(occurences=new_count, av_dBm=new_avg)
+        self._forward[mac1][mac2] = Annotation(occurences=new_count, av_dBm=new_avg)
+        self._backward[mac2].add(mac1)
 
-    def __getattr__(self, name: str) -> Dict[str, Annotation]:
-        return getattr(self._repr, name)
+    @property
+    def forward(self) -> ForwardMap:
+        return self._forward
+
+    @property
+    def back(self) -> BackwardMap:
+        return self._backward
+
+    @property
+    def backward(self) -> BackwardMap:
+        return self._backward
 
 class NonMetricMap(object): 
     '''
@@ -50,7 +67,7 @@ class NonMetricMap(object):
 
     def get_space(self, sensor_data: List[SensorData]) -> Tuple[str, float]:
         max_likelihood_base, probability = self._max_likelihood_base(sensor_data)
-        existing_space = self.map_repr[max_likelihood_base]
+        existing_space = self.map_repr.forward[max_likelihood_base]
         # update for previously not seen data
         for reading in sensor_data:
             mac_addr = reading['mac_address']
@@ -67,13 +84,14 @@ class NonMetricMap(object):
 
     def _probability_found(self, base: str, not_prev_seen_mac: str, dBm: int) -> float:
         '''probability that a new mac address was actually there originally'''
-        #TODO
-        return 0.1
+        # dBm == 0 -> 0.0
+        # dBm <= -100 -> 1.0
+        return min(1., max(0., dBm / -100.))
 
     def _probabilty_missing(self, base: str, prev_seen_mac: str) -> float:
         '''probability that a previously seen mac address is okay to not be there'''
-        #TODO
-        return 0.1
+        old_avg_dBm = self.map_repr[base][prev_seen_mac][1]
+        return min(1., max(0., old_avg_dBm / -100.))
 
     def _max_likelihood_base(self, sensor_data: List[SensorData]) -> Tuple[str, float]:
         maxDBm = -101
@@ -96,8 +114,20 @@ class NonMetricMap(object):
         return sensor_data[maxIndex]['mac_address'], maxProb
 
     def _probability_base_unit(self, mac_addr: str, dBm: int, minDBm: int) -> float:
-        #TODO
-        prior = 0.5 # ratio of base spaces to all containing spaces
-        update = float(minDBm)/dBm # ratio of this dBm to the min
+        # this is the base to at most 1 existing base
+        if mac_addr not in self.map_repr.forward:
+            return 0.0
+        # this may be contained in as many bases are there are backrefs
+        num_contained = len(self.map_repr.back[mac_addr])
+        prior = 1./num_contained # ratio of base spaces to all containing spaces
+
+        # "min" 0, dBm -100 -> 0.0
+        # "min" -50, dBm -100 -> 0.5
+        # "min" -100, dBm -100 -> 1.0
+        if minDBm < dBm:
+            update = float(minDBm)/dBm # ratio of this dBm to the min
+        else:
+            update = 1.0
+
         return prior*update
 
