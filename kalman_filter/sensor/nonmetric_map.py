@@ -68,7 +68,9 @@ class NonMetricMap(object):
             if reading['mac_address'] == base['mac_address']:
                 continue
             self.map_repr.add_pair(base['mac_address'], reading['mac_address'], reading['signal'])
-        if self.get_space(sensor_data)[1] < .5:
+        old_estimate = self.get_space(sensor_data)
+        print('k/s/n: old %s' % (old_estimate,))
+        if old_estimate[1] < .5:
             self.create_space(sensor_data)
     
     def create_space(self, sensor_data: List[SensorData]) -> None:

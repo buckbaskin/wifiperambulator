@@ -5,7 +5,7 @@ import datetime
 
 # database
 from tinydb import TinyDB
-top_database = TinyDB('data/live_mapping.json') 
+top_database = TinyDB('data/live_mapping.json.freeze') 
 database = top_database.table('data')
 
 from kalman_filter.sensor.nonmetric_map import NonMetricMap
@@ -45,7 +45,6 @@ for i in range(0, cycles):
     time = datetime.datetime.now()
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     write_list = []
-    update_list = []
     for line in child.stdout:
         if line == '' and child.poll() != None:
             break
@@ -73,11 +72,8 @@ for i in range(0, cycles):
                 else:
                     # print('SensorData(%s, %s)' % (mac_address, dBm_int,))
                     write_list.append({'mac_address': mac_address, 'signal': dBm_int})
-                    update_list.append(SensorData(mac_address, dBm_int))
 
         sys.stdout.flush()
-    database.insert(schema_to_db(time, write_list))
-    nmap.update(update_list)
     print('end collection round %d' % i)
 
 print('data collected at %s' % (time,))
