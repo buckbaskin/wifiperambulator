@@ -1,11 +1,15 @@
+from collections import namedtuple
 from kalman_filter.motion import collect_motion_data, motion_update
 from kalman_filter.sensor import collect_sensor_data, sensor_update
 
-class State(object):
-    pass
+Position = namedtuple('Position', ['x', 'y', 'z'])
 
-def init_state():
-    return {}
+class State(object):
+    def __init__(self):
+        p = Position(x=0.0, y=0.0, z=0.0)
+
+def init_state() -> State:
+    return State()
 
 
 

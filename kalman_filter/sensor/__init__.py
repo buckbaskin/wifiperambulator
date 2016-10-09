@@ -1,8 +1,13 @@
 from kalman_filter import State
 from typing import Any, Dict, List
 
-class SensorData(object):
-    pass
+class SensorData(dict):
+    def __init__(self):
+        pass
+
+    def __lt__(self, other):
+        return self['signal'] < other['signal']
+    
 
 def sensor_update(sensor_data: List[SensorData], state: State) -> State:
     for unit_sense in sensor_data:
