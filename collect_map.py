@@ -91,7 +91,10 @@ result = nmap.get_space(write_list)
 print('Get space %s' % (result,))
 
 nice_output = {
-        'F0:B0:52:21:DF:D8': '5th Floor, Near MongoDB'
+        'F0:B0:52:21:DF:D8': '5th Floor, Near MongoDB',
+        'F0:B0:52:9F:FC:C8': '2nd Floor, Hallway',
+        'E0:10:7F:7A:A9:18': 'Basement, Stage Right',
+#        'E0:10:7F:7A:A9:18': 'Basement, Stage Left'
         }
 
 if result[0] in nice_output:
