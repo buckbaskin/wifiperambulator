@@ -1,6 +1,6 @@
 from collections import namedtuple, defaultdict
 from kalman_filter.sensor import SensorData
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 Annotation = namedtuple('Annotation', ['occurences', 'av_dBm'])
 
@@ -12,7 +12,7 @@ class _MapRepr(dict):
     _forward = None  # type: ForwardMap
     _backward = None # type: BackwardMap
     
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Tuple[Any], **kwargs: Dict[Any, Any]) -> None:
         super(_MapRepr, self).__init__(*args, **kwargs)
         self._forward = defaultdict(dict)
         self._backward = defaultdict(set)
@@ -122,6 +122,9 @@ class NonMetricMap(object):
             return 0.0
         # this may be contained in as many bases are there are backrefs
         num_contained = len(self.map_repr.back[mac_addr])
+        if num_contained == 0:
+            return 1.0
+
         prior = 1./num_contained # ratio of base spaces to all containing spaces
 
         # "min" 0, dBm -100 -> 0.0

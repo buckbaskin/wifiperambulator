@@ -10,11 +10,11 @@ class State(object):
     def __init__(self) -> None:
         self.p = Position(x=0.0, y=0.0, z=0.0)
 
-    def update(self, p: Position):
+    def update(self, p: Position) -> None:
         self.p = p
 
     @property
-    def state(self):
+    def state(self) -> Position:
         return self.p
 
 def init_state() -> State:
