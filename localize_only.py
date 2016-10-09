@@ -20,6 +20,7 @@ nice_output = {
         'E0:10:7F:FD:CB:48': 'Basement, Stage Left',
         'E0:10:7F:BE:C1:B8': 'Basement, Stage Left too',
         'E0:10:7F:3D:32:A8': 'Basement center back',
+        'E0:10:7F:FD:54:A8': 'Basement outside stage right',
         '00:3A:98:91:BD:60': '1st Floor, Near Entrance',
         'F0:B0:52:9F:FC:C8': '1st to 2nd stairs',
         'F0:B0:52:1F:FC:C8': '1st to 2nd stairs too',
@@ -29,7 +30,7 @@ nice_output = {
         'F0:B0:52:5F:F3:08': '3rd Floor, GE Side',
         'F0:B0:52:5F:FB:28': '3rd Floor, Front of Red Wings Room',
         'F0:B0:52:1F:FB:28': '3rd Floor Red Wings Room Too',
-        'F0:B0:52:9F:FB:A8': '3rd Floor Attrium'
+        'F0:B0:52:9F:FB:A8': '4th Floor Attrium',
         'F0:B0:52:61:DF:08': '4th Floor, Hardware Desk',
         'F0:B0:52:A1:DF:D8': '5th Floor, Kitchen',
         'F0:B0:52:1F:FB:18': '5th Floor, Qualtrics/RetailMeNot',
