@@ -87,7 +87,16 @@ for i in range(0, cycles):
 
 print('data collected at %s' % (time,))
 
-nmap.get_space(write_list)
+result = nmap.get_space(write_list)
+print('Get space %s' % (result,))
+
+nice_output = {
+        'F0:B0:52:21:DF:D8': '5th Floor, Near MongoDB'
+        }
+
+if result[0] in nice_output:
+    print('Real talk: %s' % (nice_output[result[0]]))
+
 
 sys.stdout.flush()
 
