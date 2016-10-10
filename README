@@ -1,0 +1,3 @@
+WiFi Mapping using existing access points and the antennae on a computer. (aka fictional-winner)
+
+This uses a topological map combined with triangulation and simultaneous localization and mapping (SLAM) to precisely identify one's location within a building and even map out the walls and structure of a building. 
